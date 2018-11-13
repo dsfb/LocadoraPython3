@@ -15,8 +15,28 @@ class cliente(object):
 		self.cid = cid
 		self.nome = nome
 
+class OptionDBManager(object):
+	def __init__(self, opt_num, opt_fun, opt_str):
+		self.opt_num = opt_num
+		self.opt_fun = opt_fun
+		self.opt_str = opt_str
 
-def menu():
+
+class DBManager(object):
+	def __init__(self):
+		pass
+
+	def cadastrar_filme(self):
+		pass
+
+	def get_options_str(self):
+		return "\r".join(["1 - Cadastrar um filme",
+							"0 - Sair"])
+
+
+def menu(string):
+	print("Testing:");
+	print(string)
 	print("------------------------------ Locadora GeeksBR ------------------------------");
 	print("\n\n1  - Cadastrar um filme\n");
 	print("0  - Sair\n");
@@ -28,10 +48,15 @@ def menu():
 			print('Você digitou uma string inválida')
 		except EOFError:
 			pass
+		finally:
+			return -1
 
 def rodar():
+	dbm = DBManager()
 	while True:
-		opcao = menu()
+		opcao = menu(dbm.get_options_str())
+		if opcao == 1:
+			dbm.cadastrar_filme()
 		break
 
 if __name__ == "__main__":
