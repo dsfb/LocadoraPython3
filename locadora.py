@@ -15,6 +15,7 @@ class cliente(object):
 		self.cid = cid
 		self.nome = nome
 
+
 class OptionDBManager(object):
 	def __init__(self, opt_num, opt_fun, opt_str):
 		self.opt_num = opt_num
@@ -24,40 +25,83 @@ class OptionDBManager(object):
 
 class DBManager(object):
 	def __init__(self):
-		pass
+		self.option_stock_dict = {}
+		self.fill_option_stock()
+
+		# criando uma conexão passando o nome do arquivo
+		self.conn = sqlite3.connect('locadora.sqlite3')
+
+		# obtendo um cursor
+		self.c = self.conn.cursor()
+
+		self.init_tables()
+
+
+	def init_tables(self):
+		self.c.execute(" ".join(['CREATE TABLE IF NOT EXISTS Filme(', 
+								 '`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,',
+								 '`id_cliente` INTEGER, `nome`	TEXT NOT NULL,', 
+								 '`preco` REAL NOT NULL);']))
+		self.conn.commit()
+		self.c.execute(" ".join(['CREATE TABLE IF NOT EXISTS Cliente (',
+								 '`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,',
+								 '`nome`	TEXT NOT NULL);']))
+		self.conn.commit()
+
 
 	def cadastrar_filme(self):
-		pass
+		print("Você quer cadastrar um filme...!")
+
+
+	def quit(self):
+		print("Você quer sair do programa...!")
+		self.finish_tables()
+
 
 	def get_options_str(self):
-		return "\r".join(["1 - Cadastrar um filme",
-							"0 - Sair"])
+		return "\r\n".join([s.opt_str for s in self.option_stock_dict.values()])
+
+
+	def fill_option_stock(self):
+		self.option_stock_dict[1] = OptionDBManager(1, self.cadastrar_filme, "1 - Cadastrar um filme")
+		self.option_stock_dict[0] = OptionDBManager(0, self.quit, "0 - Sair")
+
+
+	def execute_option(self, num):
+		self.option_stock_dict[num].opt_fun()
+
+
+	def finish_tables(self):
+		self.c.close()
+		self.conn.close()
 
 
 def menu(string):
-	print("Testing:");
-	print(string)
-	print("------------------------------ Locadora GeeksBR ------------------------------");
-	print("\n\n1  - Cadastrar um filme\n");
-	print("0  - Sair\n");
-	print("Digite o numero da opcao: ");
+	qtde_opcoes_disponiveis = 2
 	while True:
+		print("------------------------------ Locadora GeeksBR ------------------------------")
+		print("Digite o numero da opcao desejada: ")
+		print(string)
 		try:
-			return int(input())
+			opcao = int(input())
+			if opcao in [i for i in range(qtde_opcoes_disponiveis)]:
+				return opcao
+			else:
+				print("Opção inválida! Digite uma opção válida!")
 		except ValueError:
 			print('Você digitou uma string inválida')
 		except EOFError:
 			pass
-		finally:
-			return -1
+
 
 def rodar():
 	dbm = DBManager()
 	while True:
 		opcao = menu(dbm.get_options_str())
-		if opcao == 1:
-			dbm.cadastrar_filme()
-		break
+		dbm.execute_option(opcao)
+		if opcao == 0:
+			break
+
 
 if __name__ == "__main__":
 	rodar()
