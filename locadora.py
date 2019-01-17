@@ -16,6 +16,22 @@ class cliente(object):
 		self.nome = nome
 
 
+class DBCreator(object):
+	def __init__(self, filename):
+		self.filename = filename
+
+		self.create()
+
+	def create(self):
+		# criando uma conexão passando o nome do arquivo
+		self.conn = sqlite3.connect(self.filename)
+
+		# obtendo um cursor
+		self.c = self.conn.cursor()
+
+	def get_conn_cursor(self):
+		return self.conn, self.c
+
 class OptionDBManager(object):
 	def __init__(self, opt_num, opt_fun, opt_str):
 		self.opt_num = opt_num
@@ -28,19 +44,17 @@ class DBManager(object):
 		self.option_stock_dict = {}
 		self.fill_option_stock()
 
-		# criando uma conexão passando o nome do arquivo
-		self.conn = sqlite3.connect('locadora.sqlite3')
+		creator = DBCreator('locadora.sqlite3')
 
-		# obtendo um cursor
-		self.c = self.conn.cursor()
+		self.conn, self.c = creator.get_conn_cursor()
 
 		self.init_tables()
 
 
 	def init_tables(self):
-		self.c.execute(" ".join(['CREATE TABLE IF NOT EXISTS Filme(', 
+		self.c.execute(" ".join(['CREATE TABLE IF NOT EXISTS Filme(',
 								 '`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,',
-								 '`id_cliente` INTEGER, `nome`	TEXT NOT NULL,', 
+								 '`id_cliente` INTEGER, `nome`	TEXT NOT NULL,',
 								 '`preco` REAL NOT NULL);']))
 		self.conn.commit()
 		self.c.execute(" ".join(['CREATE TABLE IF NOT EXISTS Cliente (',
@@ -51,6 +65,28 @@ class DBManager(object):
 
 	def cadastrar_filme(self):
 		print("Você quer cadastrar um filme...!")
+
+		print("Digite o nome do filme:")
+
+		nome_filme = input()
+
+		print("O nome inserido foi:", nome_filme)
+
+		done = False
+		while not done:
+			print("Digite o preço do filme, em reais:")
+			dado = input()
+			try:
+				preco_filme = float(dado)
+				done = True
+			except ValueError:
+				try:
+					preco_filme = float(dado.replace(',', '.'))
+					done = True
+				except ValueError:
+					print("Você inseriu um valor errado para o preço do filme!")
+
+		print("Filme {} cadastrado com sucesso!".format(nome_filme))
 
 
 	def quit(self):
