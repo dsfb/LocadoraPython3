@@ -110,8 +110,6 @@ class DBManager(object):
 	def cadastrar_cliente(self):
 		print("Você quer cadastrar um cliente...!")
 
-
-
 		done = False
 		while not done:
 			print("Digite o nome do cliente:")
@@ -136,6 +134,22 @@ class DBManager(object):
 			sys.exit(1)
 
 
+	def listar_filmes(self):
+		print('Você quer listar todos os filmes...!')
+
+		self.cur.execute("SELECT * FROM Filme")
+
+		rows = self.cur.fetchall()
+
+		if rows:
+			for row in rows:
+				print("----------------")
+				print("ID do filme: {}".format(row[0]))
+				print("Nome do filme: {}".format(row[2]))
+				print("Preco: R$ {:.2f}".format(float(row[3])))
+		else:
+			print("Nenhum filme cadastrado.")
+
 	def quit(self):
 		print("Você quer sair do programa...!")
 		self.finish_tables()
@@ -146,6 +160,7 @@ class DBManager(object):
 
 
 	def fill_option_stock(self):
+		self.option_stock_dict[3] = OptionDBManager(3, self.listar_filmes, '3  - Listar todos os filmes')
 		self.option_stock_dict[2] = OptionDBManager(2, self.cadastrar_cliente, "2  - Cadastrar um cliente")
 		self.option_stock_dict[1] = OptionDBManager(1, self.cadastrar_filme, "1  - Cadastrar um filme")
 		self.option_stock_dict[0] = OptionDBManager(0, self.quit, "0  - Sair")
