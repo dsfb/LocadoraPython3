@@ -69,9 +69,13 @@ class DBManager(object):
 	def cadastrar_filme(self):
 		print("Você quer cadastrar um filme...!")
 
-		print("Digite o nome do filme:")
-
-		nome_filme = input()
+		done = False
+		while not done:
+			print("Digite o nome do filme:")
+			nome_filme = input()
+			done = len(nome_filme) > 0
+			if not done:
+				print("Você não digitou o nome do filme!")
 
 		print("O nome inserido foi:", nome_filme)
 
