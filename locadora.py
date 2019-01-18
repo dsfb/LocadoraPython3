@@ -146,7 +146,20 @@ class DBManager(object):
             print("Nenhum filme cadastrado.")
 
     def listar_clientes(self):
-        pass
+        print("Você quer listar todos os clientes...!")
+
+        self.cur.execute("SELECT * FROM Cliente")
+
+        rows = self.cur.fetchall()
+
+        if rows:
+            print("Listando todos os clientes...")
+            for row in rows:
+                print("----------------")
+                print("ID do cliente: {}".format(row[0]))
+                print("Nome do cliente: {}".format(row[1]))
+        else:
+            print("Nenhum cliente cadastrado.")
 
     def quit(self):
         print("Você quer sair do programa...!")
@@ -157,6 +170,8 @@ class DBManager(object):
                             for k in sorted(self.option_stock_dict.keys())])
 
     def fill_option_stock(self):
+        self.option_stock_dict[4] = OptionDBManager(4, self.listar_clientes,
+                                                    '4  - Listar todos os clientes')
         self.option_stock_dict[3] = OptionDBManager(3, self.listar_filmes,
                                                     '3  - Listar todos os filmes')
         self.option_stock_dict[2] = OptionDBManager(2, self.cadastrar_cliente,
