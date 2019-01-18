@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import sqlite3
 import sys
 
@@ -41,7 +42,7 @@ class OptionDBManager(object):
 
 
 class DBManager(object):
-     def __init__(self):
+    def __init__(self):
         self.option_stock_dict = {}
         self.fill_option_stock()
 
@@ -50,7 +51,6 @@ class DBManager(object):
         self.conn, self.cur = creator.get_conn_cursor()
 
         self.init_tables()
-
 
     def init_tables(self):
         self.cur.execute(" ".join(['CREATE TABLE IF NOT EXISTS Filme(',
@@ -63,7 +63,6 @@ class DBManager(object):
                                    '`id`    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,',
                                    '`nome`  TEXT NOT NULL);']))
         self.conn.commit()
-
 
     def cadastrar_filme(self):
         print("Você quer cadastrar um filme...!")
@@ -98,13 +97,12 @@ class DBManager(object):
             self.conn.commit()
 
             print("Filme {} cadastrado com sucesso!".format(nome_filme))
-        except sqlite3.Error as e:
+        except sqlite3.Error:
             print("Erro ao cadastrar o filme!")
             if self.conn:
                 self.conn.rollback()
             print('Abortando a execução do programa!')
             sys.exit(1)
-
 
     def cadastrar_cliente(self):
         print("Você quer cadastrar um cliente...!")
@@ -124,14 +122,12 @@ class DBManager(object):
                              format(nome_cliente))
             self.conn.commit()
             print("Cliente {} cadastrado com sucesso!".format(nome_cliente))
-            # print("ID deste cliente: {}".format(id_cliente))
-        except sqlite3.Error as e:
+        except sqlite3.Error:
             print('Erro ao cadastrar o cliente!')
             if self.conn:
                 self.conn.rollback
             print('Abortando a execução do programa!')
             sys.exit(1)
-
 
     def listar_filmes(self):
         print('Você quer listar todos os filmes...!')
@@ -149,30 +145,28 @@ class DBManager(object):
         else:
             print("Nenhum filme cadastrado.")
 
-
     def listar_clientes(self):
         pass
-
 
     def quit(self):
         print("Você quer sair do programa...!")
         self.finish_tables()
 
-
     def get_options_str(self):
-        return "\r\n".join([self.option_stock_dict[k].opt_str for k in sorted(self.option_stock_dict.keys())])
-
+        return "\r\n".join([self.option_stock_dict[k].opt_str
+                            for k in sorted(self.option_stock_dict.keys())])
 
     def fill_option_stock(self):
-        self.option_stock_dict[3] = OptionDBManager(3, self.listar_filmes, '3  - Listar todos os filmes')
-        self.option_stock_dict[2] = OptionDBManager(2, self.cadastrar_cliente, "2  - Cadastrar um cliente")
-        self.option_stock_dict[1] = OptionDBManager(1, self.cadastrar_filme, "1  - Cadastrar um filme")
+        self.option_stock_dict[3] = OptionDBManager(3, self.listar_filmes,
+                                                    '3  - Listar todos os filmes')
+        self.option_stock_dict[2] = OptionDBManager(2, self.cadastrar_cliente,
+                                                    "2  - Cadastrar um cliente")
+        self.option_stock_dict[1] = OptionDBManager(1, self.cadastrar_filme,
+                                                    "1  - Cadastrar um filme")
         self.option_stock_dict[0] = OptionDBManager(0, self.quit, "0  - Sair")
-
 
     def execute_option(self, num):
         self.option_stock_dict[num].opt_fun()
-
 
     def finish_tables(self):
         self.cur.close()
