@@ -110,9 +110,15 @@ class DBManager(object):
 	def cadastrar_cliente(self):
 		print("Você quer cadastrar um cliente...!")
 
-		print("Digite o nome do cliente:")
 
-		nome_cliente = input()
+
+		done = False
+		while not done:
+			print("Digite o nome do cliente:")
+			nome_cliente = input()
+			done = len(nome_cliente) > 0
+			if not done:
+				print('Você não digitou o nome do cliente!')
 
 		print("O nome inserido foi:", nome_cliente)
 
