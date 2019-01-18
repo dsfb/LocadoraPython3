@@ -103,18 +103,42 @@ class DBManager(object):
 			sys.exit(1)
 
 
+	def cadastrar_cliente(self):
+		print("Você quer cadastrar um cliente...!")
+
+		print("Digite o nome do cliente:")
+
+		nome_cliente = input()
+
+		print("O nome inserido foi:", nome_cliente)
+
+		try:
+			self.cur.execute("INSERT INTO Cliente(nome) VALUES ('{}')".
+							 format(nome_cliente))
+			self.conn.commit()
+			print("Cliente {} cadastrado com sucesso!".format(nome_cliente))
+			# print("ID deste cliente: {}".format(id_cliente))
+		except sqlite3.Error as e:
+			print('Erro ao cadastrar o cliente!')
+			if self.conn:
+				self.conn.rollback
+			print('Abortando a execução do programa!')
+			sys.exit(1)
+
+
 	def quit(self):
 		print("Você quer sair do programa...!")
 		self.finish_tables()
 
 
 	def get_options_str(self):
-		return "\r\n".join([s.opt_str for s in self.option_stock_dict.values()])
+		return "\r\n".join([self.option_stock_dict[k].opt_str for k in sorted(self.option_stock_dict.keys())])
 
 
 	def fill_option_stock(self):
-		self.option_stock_dict[1] = OptionDBManager(1, self.cadastrar_filme, "1 - Cadastrar um filme")
-		self.option_stock_dict[0] = OptionDBManager(0, self.quit, "0 - Sair")
+		self.option_stock_dict[2] = OptionDBManager(2, self.cadastrar_cliente, "2  - Cadastrar um cliente")
+		self.option_stock_dict[1] = OptionDBManager(1, self.cadastrar_filme, "1  - Cadastrar um filme")
+		self.option_stock_dict[0] = OptionDBManager(0, self.quit, "0  - Sair")
 
 
 	def execute_option(self, num):
@@ -125,9 +149,13 @@ class DBManager(object):
 		self.cur.close()
 		self.conn.close()
 
+	def get_size_option_stock(self):
+		return len(self.option_stock_dict.keys())
 
-def menu(string):
-	qtde_opcoes_disponiveis = 2
+
+def menu(dbm):
+	string = dbm.get_options_str()
+	qtde_opcoes_disponiveis = dbm.get_size_option_stock()
 	while True:
 		print("------------------------------ Locadora GeeksBR ------------------------------")
 		print("Digite o numero da opcao desejada: ")
@@ -147,7 +175,7 @@ def menu(string):
 def rodar():
 	dbm = DBManager()
 	while True:
-		opcao = menu(dbm.get_options_str())
+		opcao = menu(dbm)
 		dbm.execute_option(opcao)
 		if opcao == 0:
 			break
