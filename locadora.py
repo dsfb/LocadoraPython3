@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sqlite3
+import sys
 
 
 class filme(object):
@@ -27,10 +28,11 @@ class DBCreator(object):
 		self.conn = sqlite3.connect(self.filename)
 
 		# obtendo um cursor
-		self.c = self.conn.cursor()
+		self.cur = self.conn.cursor()
 
 	def get_conn_cursor(self):
-		return self.conn, self.c
+		return self.conn, self.cur
+
 
 class OptionDBManager(object):
 	def __init__(self, opt_num, opt_fun, opt_str):
@@ -46,18 +48,19 @@ class DBManager(object):
 
 		creator = DBCreator('locadora.sqlite3')
 
-		self.conn, self.c = creator.get_conn_cursor()
+		self.conn, self.cur = creator.get_conn_cursor()
 
 		self.init_tables()
 
 
 	def init_tables(self):
-		self.c.execute(" ".join(['CREATE TABLE IF NOT EXISTS Filme(',
+		self.cur.execute(" ".join(['CREATE TABLE IF NOT EXISTS Filme(',
 								 '`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,',
 								 '`id_cliente` INTEGER, `nome`	TEXT NOT NULL,',
 								 '`preco` REAL NOT NULL);']))
 		self.conn.commit()
-		self.c.execute(" ".join(['CREATE TABLE IF NOT EXISTS Cliente (',
+
+		self.cur.execute(" ".join(['CREATE TABLE IF NOT EXISTS Cliente (',
 								 '`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,',
 								 '`nome`	TEXT NOT NULL);']))
 		self.conn.commit()
@@ -86,7 +89,18 @@ class DBManager(object):
 				except ValueError:
 					print("Você inseriu um valor errado para o preço do filme!")
 
-		print("Filme {} cadastrado com sucesso!".format(nome_filme))
+		try:
+			self.cur.execute("INSERT INTO Filme(nome, preco) VALUES ('{}', {})".
+							 format(nome_filme, preco_filme))
+			self.conn.commit()
+
+			print("Filme {} cadastrado com sucesso!".format(nome_filme))
+		except sqlite3.Error as e:
+			print("Erro ao cadastrar o filme!")
+			if self.conn:
+				self.conn.rollback()
+			print('Abortando a execução do programa!')
+			sys.exit(1)
 
 
 	def quit(self):
@@ -108,7 +122,7 @@ class DBManager(object):
 
 
 	def finish_tables(self):
-		self.c.close()
+		self.cur.close()
 		self.conn.close()
 
 
